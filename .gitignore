@@ -1,0 +1,33 @@
+# Compiled Object files
+*.o
+*.obj
+
+# Compiled Binary
+*.exe
+*.out
+*.app
+
+# Backup files
+*~
+*.bak
+
+# Build directories
+/build/
+/bin/
+/debug/
+/dist/
+/CMakeFiles/
+/CMakeCache.txt
+Makefile
+cmake_install.cmake
+
+# VSCode / CLion / CodeBlocks
+.vscode/
+.idea/
+*.cbp
+
+# Logs
+*.log
+
+# Generated files
+*.huff
