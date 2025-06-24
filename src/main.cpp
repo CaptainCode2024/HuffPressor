@@ -5,40 +5,28 @@
 int main() {
     Compressor compressor;
 
-    // Input file to be compressed (relative to build directory)
-    std::string filename = "../test.txt";
+    // Input file to compress (relative path from build directory)
+    std::string inputFilename = "../test.txt";
+    std::string outputFilename = "../compressed.huff";
 
-    // Step 1: Build frequency map from input file
-    if (compressor.readFileAndBuildFrequency(filename)) {
-        std::cout << "Byte Frequencies:\n";
-        for (const auto& [byte, count] : compressor.getFrequencyMap()) {
-            std::cout << "Byte: " << static_cast<int>(byte)
-                      << " -> Count: " << count << "\n";
-        }
-    } else {
-        std::cerr << "Failed to process file.\n";
+    // Step 1: Read input file and build frequency map
+    if (!compressor.readFileAndBuildFrequency(inputFilename)) {
+        std::cerr << "Failed to read input file.\n";
         return 1;
     }
 
-    // Step 2: Build Huffman Tree from frequency map
+    // Step 2: Build Huffman tree from the frequency map
     HuffmanTree tree;
     tree.build(compressor.getFrequencyMap());
-    std::cout << "Huffman Tree built successfully.\n";
 
-    // Step 3: Generate Huffman codes
+    // Step 3: Generate Huffman codes for each byte
     const auto& codes = tree.getHuffmanCodes();
-    std::cout << "Generated Huffman Codes:\n";
-    for (const auto& [byte, code] : codes) {
-        std::cout << "Byte: " << static_cast<int>(byte) << " -> Code: " << code << "\n";
-    }
 
-    // Step 4: Compress the input file using Huffman codes
-    std::string outputFilename = "../compressed.huff";
-    if (compressor.compressFile(filename, outputFilename, codes)) {
-        std::cout << "File compressed successfully! Saved as: " << outputFilename << "\n";
+    // Step 4 & 5: Compress file and serialize tree + encoded data
+    if (compressor.compressFile(inputFilename, outputFilename, codes, tree.getRoot())) {
+        std::cout << "Compression successful.\n";
     } else {
         std::cerr << "Compression failed.\n";
-        return 1;
     }
 
     return 0;

@@ -1,46 +1,48 @@
-#ifndef HUFFMAN_TREE_H
-#define HUFFMAN_TREE_H
+#ifndef HUFFMANTREE_H
+#define HUFFMANTREE_H
 
 #include <unordered_map>
 #include <queue>
 #include <string>
-#include <memory>
 
-// Node structure for Huffman Tree
+// Node structure used in the Huffman tree
 struct HuffmanNode {
-    unsigned char byte;
-    int frequency;
-    HuffmanNode* left;
-    HuffmanNode* right;
+    unsigned char byte;       // The byte represented by this node (valid only for leaves)
+    int frequency;            // Frequency of the byte
+    HuffmanNode* left;        // Left child
+    HuffmanNode* right;       // Right child
 
-    HuffmanNode(unsigned char b, int freq)
-        : byte(b), frequency(freq), left(nullptr), right(nullptr) {}
+    HuffmanNode(unsigned char b, int freq);
+    HuffmanNode(int freq, HuffmanNode* l, HuffmanNode* r);
+    ~HuffmanNode();
 
-    HuffmanNode(int freq, HuffmanNode* l, HuffmanNode* r)
-        : byte(0), frequency(freq), left(l), right(r) {}
-};
-
-// Comparator for priority queue
-struct Compare {
-    bool operator()(HuffmanNode* a, HuffmanNode* b) {
-        return a->frequency > b->frequency;
-    }
+    // Utility: check if the node is a leaf
+    bool isLeaf() const;
 };
 
 class HuffmanTree {
 public:
-    // Build Huffman Tree from frequency map
+    // Build tree using a byte-frequency map
     void build(const std::unordered_map<unsigned char, int>& freqMap);
 
-    // Get the Huffman codes map
+    // Returns generated Huffman codes for all bytes
     const std::unordered_map<unsigned char, std::string>& getHuffmanCodes() const;
+
+    // Get the root node (needed for tree serialization)
+    HuffmanNode* getRoot() const;
+
+    // Destructor: frees memory
+    ~HuffmanTree();
 
 private:
     HuffmanNode* root = nullptr;
-    std::unordered_map<unsigned char, std::string> huffmanCodes;
+    std::unordered_map<unsigned char, std::string> codes;
 
-    // Recursive helper to generate codes from the tree
-    void generateCodes(HuffmanNode* node, const std::string& code);
+    // Recursively generate binary codes for each leaf
+    void generateCodes(HuffmanNode* node, const std::string& currentCode);
+
+    // Helper function to free memory recursively
+    void destroyTree(HuffmanNode* node);
 };
 
-#endif // HUFFMAN_TREE_H
+#endif // HUFFMANTREE_H

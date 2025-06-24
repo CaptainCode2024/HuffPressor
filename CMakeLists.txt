@@ -13,6 +13,7 @@ add_executable(huffpressor
     src/decompressor.cpp
     src/utils.cpp
     src/huffmanTree.cpp
+    src/bitWriter.cpp     
 )
 
 # Add include directory for header files
