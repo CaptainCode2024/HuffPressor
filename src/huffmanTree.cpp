@@ -1,50 +1,45 @@
 #include "huffmanTree.h"
-#include <iostream>
 
-// Build Huffman tree using priority queue
+// Build Huffman Tree from the frequency map
 void HuffmanTree::build(const std::unordered_map<unsigned char, int>& freqMap) {
-    std::priority_queue<std::shared_ptr<HuffmanNode>, std::vector<std::shared_ptr<HuffmanNode>>, Compare> pq;
+    std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, Compare> pq;
 
-    // Create leaf nodes and push into priority queue
+    // Step 1: Push all frequency nodes into the priority queue
     for (const auto& [byte, freq] : freqMap) {
-        pq.push(std::make_shared<HuffmanNode>(byte, freq));
+        pq.push(new HuffmanNode(byte, freq));
     }
 
-    // Build tree
+    // Step 2: Combine nodes to form the Huffman Tree
     while (pq.size() > 1) {
-        auto left = pq.top(); pq.pop();
-        auto right = pq.top(); pq.pop();
-        auto parent = std::make_shared<HuffmanNode>(left->frequency + right->frequency, left, right);
+        HuffmanNode* left = pq.top(); pq.pop();
+        HuffmanNode* right = pq.top(); pq.pop();
+
+        HuffmanNode* parent = new HuffmanNode(left->frequency + right->frequency, left, right);
         pq.push(parent);
     }
 
-    if (!pq.empty()) {
-        root = pq.top();
-    }
+    // Step 3: The final node is the root
+    root = pq.top();
+
+    // Step 4: Generate Huffman codes from the tree
+    generateCodes(root, "");
 }
 
-// Generate Huffman codes by traversing the tree
-void HuffmanTree::generateCodes() {
-    codes.clear();
-    if (root) {
-        generateCodesHelper(root, "");
-    }
-}
-
-// Recursive helper to assign codes to bytes
-void HuffmanTree::generateCodesHelper(const std::shared_ptr<HuffmanNode>& node, const std::string& code) {
+// Recursively generate Huffman codes from the tree
+void HuffmanTree::generateCodes(HuffmanNode* node, const std::string& code) {
     if (!node) return;
 
-    if (node->isLeaf()) {
-        codes[node->byte] = code;
+    // Leaf node contains a byte
+    if (!node->left && !node->right) {
+        huffmanCodes[node->byte] = code;
         return;
     }
 
-    generateCodesHelper(node->left, code + "0");
-    generateCodesHelper(node->right, code + "1");
+    generateCodes(node->left, code + "0");
+    generateCodes(node->right, code + "1");
 }
 
-// Return the generated code map
-const std::unordered_map<unsigned char, std::string>& HuffmanTree::getCodes() const {
-    return codes;
+// Expose Huffman codes for use in compression
+const std::unordered_map<unsigned char, std::string>& HuffmanTree::getHuffmanCodes() const {
+    return huffmanCodes;
 }

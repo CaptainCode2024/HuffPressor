@@ -4,13 +4,17 @@
 #include <unordered_map>
 #include <string>
 
-// Handles reading a file and calculating byte frequencies
 class Compressor {
 public:
-    // Reads the file in binary mode and counts how often each byte appears
+    // Step 1: Reads a file in binary mode and counts byte frequencies
     bool readFileAndBuildFrequency(const std::string& filename);
 
-    // Returns a reference to the internal frequency map
+    // Step 4: Compresses a file using provided Huffman codes and writes binary output
+    bool compressFile(const std::string& inputFilename,
+                      const std::string& outputFilename,
+                      const std::unordered_map<unsigned char, std::string>& huffmanCodes);
+
+    // Provides access to the frequency map for tree construction
     const std::unordered_map<unsigned char, int>& getFrequencyMap() const;
 
 private:

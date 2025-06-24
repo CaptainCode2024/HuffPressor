@@ -1,48 +1,46 @@
-#ifndef HUFFMANTREE_H
-#define HUFFMANTREE_H
+#ifndef HUFFMAN_TREE_H
+#define HUFFMAN_TREE_H
 
-#include <memory>
-#include <queue>
 #include <unordered_map>
+#include <queue>
 #include <string>
+#include <memory>
 
-// Represents a node in the Huffman Tree
+// Node structure for Huffman Tree
 struct HuffmanNode {
     unsigned char byte;
     int frequency;
-    std::shared_ptr<HuffmanNode> left;
-    std::shared_ptr<HuffmanNode> right;
+    HuffmanNode* left;
+    HuffmanNode* right;
 
-    HuffmanNode(unsigned char b, int f)
-        : byte(b), frequency(f), left(nullptr), right(nullptr) {}
+    HuffmanNode(unsigned char b, int freq)
+        : byte(b), frequency(freq), left(nullptr), right(nullptr) {}
 
-    HuffmanNode(int f, std::shared_ptr<HuffmanNode> l, std::shared_ptr<HuffmanNode> r)
-        : byte(0), frequency(f), left(l), right(r) {}
-
-    bool isLeaf() const {
-        return !left && !right;
-    }
+    HuffmanNode(int freq, HuffmanNode* l, HuffmanNode* r)
+        : byte(0), frequency(freq), left(l), right(r) {}
 };
 
-// Comparator for priority queue (min-heap based on frequency)
+// Comparator for priority queue
 struct Compare {
-    bool operator()(const std::shared_ptr<HuffmanNode>& a, const std::shared_ptr<HuffmanNode>& b) const {
+    bool operator()(HuffmanNode* a, HuffmanNode* b) {
         return a->frequency > b->frequency;
     }
 };
 
-// Manages Huffman tree construction and code generation
 class HuffmanTree {
 public:
+    // Build Huffman Tree from frequency map
     void build(const std::unordered_map<unsigned char, int>& freqMap);
-    void generateCodes();
-    const std::unordered_map<unsigned char, std::string>& getCodes() const;
+
+    // Get the Huffman codes map
+    const std::unordered_map<unsigned char, std::string>& getHuffmanCodes() const;
 
 private:
-    std::shared_ptr<HuffmanNode> root;
-    std::unordered_map<unsigned char, std::string> codes;
+    HuffmanNode* root = nullptr;
+    std::unordered_map<unsigned char, std::string> huffmanCodes;
 
-    void generateCodesHelper(const std::shared_ptr<HuffmanNode>& node, const std::string& code);
+    // Recursive helper to generate codes from the tree
+    void generateCodes(HuffmanNode* node, const std::string& code);
 };
 
-#endif // HUFFMANTREE_H
+#endif // HUFFMAN_TREE_H
