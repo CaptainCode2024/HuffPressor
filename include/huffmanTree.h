@@ -1,38 +1,48 @@
-#ifndef HUFFMAN_TREE_H
-#define HUFFMAN_TREE_H
+#ifndef HUFFMANTREE_H
+#define HUFFMANTREE_H
 
-#include <unordered_map>
+#include <memory>
 #include <queue>
-#include <vector>
+#include <unordered_map>
+#include <string>
 
-// Node structure used in the Huffman Tree
+// Represents a node in the Huffman Tree
 struct HuffmanNode {
     unsigned char byte;
-    int freq;
-    HuffmanNode* left;
-    HuffmanNode* right;
+    int frequency;
+    std::shared_ptr<HuffmanNode> left;
+    std::shared_ptr<HuffmanNode> right;
 
-    HuffmanNode(unsigned char b, int f) : byte(b), freq(f), left(nullptr), right(nullptr) {}
-    HuffmanNode(HuffmanNode* l, HuffmanNode* r) : byte(0), freq(l->freq + r->freq), left(l), right(r) {}
-};
+    HuffmanNode(unsigned char b, int f)
+        : byte(b), frequency(f), left(nullptr), right(nullptr) {}
 
-// Comparison logic for min-heap (priority queue)
-struct CompareNode {
-    bool operator()(HuffmanNode* a, HuffmanNode* b) {
-        return a->freq > b->freq;
+    HuffmanNode(int f, std::shared_ptr<HuffmanNode> l, std::shared_ptr<HuffmanNode> r)
+        : byte(0), frequency(f), left(l), right(r) {}
+
+    bool isLeaf() const {
+        return !left && !right;
     }
 };
 
-class HuffmanTree {
-public:
-    // Build the Huffman Tree using the given frequency map
-    void build(const std::unordered_map<unsigned char, int>& freqMap);
-
-    // Get the root of the tree
-    HuffmanNode* getRoot() const;
-
-private:
-    HuffmanNode* root = nullptr;
+// Comparator for priority queue (min-heap based on frequency)
+struct Compare {
+    bool operator()(const std::shared_ptr<HuffmanNode>& a, const std::shared_ptr<HuffmanNode>& b) const {
+        return a->frequency > b->frequency;
+    }
 };
 
-#endif // HUFFMAN_TREE_H
+// Manages Huffman tree construction and code generation
+class HuffmanTree {
+public:
+    void build(const std::unordered_map<unsigned char, int>& freqMap);
+    void generateCodes();
+    const std::unordered_map<unsigned char, std::string>& getCodes() const;
+
+private:
+    std::shared_ptr<HuffmanNode> root;
+    std::unordered_map<unsigned char, std::string> codes;
+
+    void generateCodesHelper(const std::shared_ptr<HuffmanNode>& node, const std::string& code);
+};
+
+#endif // HUFFMANTREE_H

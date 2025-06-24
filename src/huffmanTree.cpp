@@ -1,30 +1,50 @@
 #include "huffmanTree.h"
+#include <iostream>
 
-// Builds the Huffman tree from the frequency map
+// Build Huffman tree using priority queue
 void HuffmanTree::build(const std::unordered_map<unsigned char, int>& freqMap) {
-    std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, CompareNode> minHeap;
+    std::priority_queue<std::shared_ptr<HuffmanNode>, std::vector<std::shared_ptr<HuffmanNode>>, Compare> pq;
 
-    // Step 1: Create a leaf node for each byte and add it to the min-heap
+    // Create leaf nodes and push into priority queue
     for (const auto& [byte, freq] : freqMap) {
-        minHeap.push(new HuffmanNode(byte, freq));
+        pq.push(std::make_shared<HuffmanNode>(byte, freq));
     }
 
-    // Step 2: Build the tree by combining two smallest nodes until one root remains
-    while (minHeap.size() > 1) {
-        HuffmanNode* left = minHeap.top(); minHeap.pop();
-        HuffmanNode* right = minHeap.top(); minHeap.pop();
-
-        HuffmanNode* merged = new HuffmanNode(left, right);
-        minHeap.push(merged);
+    // Build tree
+    while (pq.size() > 1) {
+        auto left = pq.top(); pq.pop();
+        auto right = pq.top(); pq.pop();
+        auto parent = std::make_shared<HuffmanNode>(left->frequency + right->frequency, left, right);
+        pq.push(parent);
     }
 
-    // Final remaining node is the root of the tree
-    if (!minHeap.empty()) {
-        root = minHeap.top();
+    if (!pq.empty()) {
+        root = pq.top();
     }
 }
 
-// Returns the root of the Huffman tree
-HuffmanNode* HuffmanTree::getRoot() const {
-    return root;
+// Generate Huffman codes by traversing the tree
+void HuffmanTree::generateCodes() {
+    codes.clear();
+    if (root) {
+        generateCodesHelper(root, "");
+    }
+}
+
+// Recursive helper to assign codes to bytes
+void HuffmanTree::generateCodesHelper(const std::shared_ptr<HuffmanNode>& node, const std::string& code) {
+    if (!node) return;
+
+    if (node->isLeaf()) {
+        codes[node->byte] = code;
+        return;
+    }
+
+    generateCodesHelper(node->left, code + "0");
+    generateCodesHelper(node->right, code + "1");
+}
+
+// Return the generated code map
+const std::unordered_map<unsigned char, std::string>& HuffmanTree::getCodes() const {
+    return codes;
 }
