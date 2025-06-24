@@ -31,6 +31,9 @@ public:
     // Get the root node (needed for tree serialization)
     HuffmanNode* getRoot() const;
 
+    // Public method to generate Huffman codes from the root
+    void generateCodes();
+
     // Destructor: frees memory
     ~HuffmanTree();
 
