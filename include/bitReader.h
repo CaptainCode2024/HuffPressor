@@ -3,20 +3,28 @@
 
 #include <istream>
 
+// BitReader is a utility class for reading individual bits or bytes from an input stream.
+// It buffers data byte-by-byte and provides bitwise access for decoding purposes.
 class BitReader {
 public:
-    BitReader(std::istream& input);
+    // Constructor binds the BitReader to an existing input stream
+    explicit BitReader(std::istream& input);
 
-    // Read the next bit from stream
+    // Reads the next single bit from the input stream.
+    // Returns true if a bit was successfully read, false on failure (EOF or error).
     bool readBit(bool& bit);
 
-    // Read next byte (used for reading characters directly)
+    // Reads the next byte (8 bits) from the stream directly.
+    // Useful for reading characters during tree deserialization.
     bool readByte(unsigned char& byte);
 
+    // Aligns the bit reader to the next full byte boundary by discarding leftover bits
+    void alignToByte();
+
 private:
-    std::istream& inputStream;
-    unsigned char buffer;
-    int bitsRemaining;
+    std::istream& inputStream;     // Reference to the input file/stream
+    unsigned char buffer = 0;      // Buffer to store a byte being read bit-by-bit
+    int bitsRemaining = 0;         // How many bits are left to read from the current buffer
 };
 
 #endif // BITREADER_H

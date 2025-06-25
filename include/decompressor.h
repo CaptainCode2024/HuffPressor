@@ -5,19 +5,23 @@
 #include "huffmanTree.h"
 #include <string>
 #include <fstream>
+#include <cstdint>
 
-// Handles reading compressed data and reconstructing the original file
 class Decompressor {
 public:
-    // High-level method: performs full decompression from file
     bool decompressFile(const std::string& inputFilename, const std::string& outputFilename);
 
-private:
-    // Reconstructs Huffman tree from serialized bit stream
-    HuffmanNode* deserializeTree(BitReader& reader);
+    uint64_t getOriginalFileSize() const;
 
-    // Traverses tree based on bitstream and writes original data
-    void decode(BitReader& reader, std::ostream& output, HuffmanNode* root);
+    ~Decompressor();  // Destructor to free tree memory
+
+private:
+    HuffmanNode* deserializeTree(BitReader& reader);
+    void decode(BitReader& reader, std::ostream& output, HuffmanNode* root, uint64_t originalSize);
+    void freeTree(HuffmanNode* node);
+
+    HuffmanNode* root = nullptr;  // Store root for cleanup
+    uint64_t originalFileSize = 0;
 };
 
 #endif // DECOMPRESSOR_H

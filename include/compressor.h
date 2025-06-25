@@ -3,25 +3,25 @@
 
 #include <unordered_map>
 #include <string>
+#include <cstdint>
 
-class HuffmanNode; // Forward declaration to avoid circular dependency
+// Forward declaration
+class HuffmanNode;
 
 class Compressor {
 public:
-    // Reads the input file and counts frequency of each byte
     bool readFileAndBuildFrequency(const std::string& filename);
-
-    // Returns reference to the frequency map built from file
     const std::unordered_map<unsigned char, int>& getFrequencyMap() const;
+    uint64_t getOriginalFileSize() const;
 
-    // Compresses the file using the generated Huffman codes
     bool compressFile(const std::string& inputFilename,
                       const std::string& outputFilename,
                       const std::unordered_map<unsigned char, std::string>& codes,
                       HuffmanNode* root);
 
 private:
-    std::unordered_map<unsigned char, int> freqMap; // Byte frequency map
+    std::unordered_map<unsigned char, int> freqMap;
+    uint64_t originalFileSize = 0;
 };
 
 #endif // COMPRESSOR_H
