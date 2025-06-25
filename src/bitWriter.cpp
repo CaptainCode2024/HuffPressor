@@ -1,8 +1,11 @@
 #include "bitWriter.h"
 #include "huffmanTree.h"
+#include "config.h"
+
 #include <iostream>
 #include <string>
 #include <bitset>  // Needed for std::bitset
+
 
 // Constructor binds the writer to an output stream
 BitWriter::BitWriter(std::ostream& outputStream) : out(outputStream) {}
@@ -17,10 +20,11 @@ void BitWriter::writeBit(bool bit) {
     buffer = (buffer << 1) | bit;  // Shift buffer and insert new bit
     bitCount++;
 
-    // Debugging: show what's being written
+#if ENABLE_LOGGING
     std::cout << "Bit Written: " << bit
               << " | Buffer: " << std::bitset<8>(static_cast<int>(buffer))
               << " | Bit Count: " << bitCount << "\n";
+#endif
 
     // Write byte when buffer is full
     if (bitCount == 8) {
@@ -44,8 +48,10 @@ void BitWriter::writeByte(unsigned char byte) {
 
     out.put(byte);
 
+#if ENABLE_LOGGING
     std::cout << "Raw Byte Written: " << std::bitset<8>(static_cast<int>(byte))
               << " (" << static_cast<int>(byte) << ")\n";
+#endif
 }
 
 // Flushes any bits left in the buffer by padding with 0s and writing the final byte
@@ -53,8 +59,10 @@ void BitWriter::flush() {
     if (bitCount > 0) {
         buffer <<= (8 - bitCount);  // Pad remaining bits with 0s
 
+#if ENABLE_LOGGING
         std::cout << "Flushing incomplete byte: " << std::bitset<8>(static_cast<int>(buffer))
                   << " (" << static_cast<int>(buffer) << ")\n";
+#endif
 
         out.put(buffer);
         buffer = 0;

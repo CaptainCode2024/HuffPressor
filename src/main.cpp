@@ -2,14 +2,13 @@
 #include "decompressor.h"
 #include "huffmanTree.h"
 #include "utils.h"
+#include "config.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
 
-/**
- * Main driver for HuffPressor project.
- * Performs compression, decompression, and verifies data integrity.
- */
+
 int main() {
     Compressor compressor;
     HuffmanTree tree;
@@ -21,7 +20,9 @@ int main() {
 
     // Step 1: Read and analyze input
     if (!compressor.readFileAndBuildFrequency(inputFilename)) {
+#if ENABLE_LOGGING
         std::cerr << "Failed to read or analyze input file.\n";
+#endif
         return 1;
     }
 
@@ -33,26 +34,38 @@ int main() {
 
     // Step 4: Compress using generated codes
     if (!compressor.compressFile(inputFilename, compressedFilename, tree.getHuffmanCodes(), tree.getRoot())) {
+#if ENABLE_LOGGING
         std::cerr << "Compression failed.\n";
+#endif
         return 1;
     }
 
+#if ENABLE_LOGGING
     std::cout << "Compression successful.\n";
+#endif
 
     // Step 5: Decompress and rebuild original file
     Decompressor decompressor;
     if (!decompressor.decompressFile(compressedFilename, decompressedFilename)) {
+#if ENABLE_LOGGING
         std::cerr << "Decompression failed.\n";
+#endif
         return 1;
     }
 
+#if ENABLE_LOGGING
     std::cout << "Decompression successful.\n";
+#endif
 
-    // Step 6: Verify file integrity by comparing decompressed and original input
+    // Step 6: Verify file integrity
     if (compareFiles(inputFilename, decompressedFilename)) {
+#if ENABLE_LOGGING
         std::cout << "Files match! Compression and decompression verified.\n";
+#endif
     } else {
+#if ENABLE_LOGGING
         std::cerr << "Files do NOT match. Data integrity compromised.\n";
+#endif
     }
 
     return 0;
